@@ -2,6 +2,7 @@ import type { MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticateForSheets } from "~/utils";
 import Schedule from "./resource.schedule";
+import Standings from "./resource.standings";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,13 +31,15 @@ export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
 
   return (
-    <div className="container mx-auto">
-      <h1 className="text-6xl font-racing text-center my-3">
+    <div className="container mx-auto px-2">
+      <h1 className="text-4xl sm:text-6xl font-racing text-center my-3">
         Golden Spike 2024
       </h1>
-      <div className="flex justify-center">
-        <div className="w-1/3"></div>
-        <div className="w-2/3">
+      <div className="flex max-sm:flex-col justify-center gap-2">
+        <div className="w-full sm:w-1/3">
+          <Standings />
+        </div>
+        <div className="w-full sm:w-2/3">
           <Schedule />
         </div>
       </div>

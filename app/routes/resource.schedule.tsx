@@ -41,9 +41,19 @@ export default function Schedule() {
 
   return (
     <div className="bg-slate-700 p-2 rounded-md shadow-lg shadow-black">
-      <h2 className="text-center text-3xl font-racing">Schedule</h2>
-      <div className="flex gap-2">
-        <div className="w-1/3 space-y-2">
+      <div className="flex">
+        <div className="w-1/12"></div>
+        <h2 className="text-center text-3xl font-racing mb-2 grow">
+          Schedule{" "}
+        </h2>
+        <div className="w-1/12 text-3xl">
+          {fetcher.state === "loading" ? (
+            <i className="fa-solid fa-spinner fa-spin"></i>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex max-sm:flex-col gap-2">
+        <div className="w-full sm:w-1/3 space-y-2">
           <h3 className="text-center text-2xl font-racing">Court 1</h3>
           {fetcher.data?.scheudule
             ?.filter((x) => x.court === "1")
@@ -51,7 +61,7 @@ export default function Schedule() {
               <ScheduleLine schedule={time} key={index} />
             ))}
         </div>
-        <div className="w-1/3 space-y-2">
+        <div className="w-full sm:w-1/3 space-y-2">
           <h3 className="text-center text-2xl font-racing">Court 2</h3>
           {fetcher.data?.scheudule
             ?.filter((x) => x.court === "2")
@@ -59,7 +69,7 @@ export default function Schedule() {
               <ScheduleLine schedule={time} key={index} />
             ))}
         </div>
-        <div className="w-1/3 space-y-2">
+        <div className="w-full sm:w-1/3 space-y-2">
           <h3 className="text-center text-2xl font-racing">Court 3</h3>
           {fetcher.data?.scheudule
             ?.filter((x) => x.court === "3")

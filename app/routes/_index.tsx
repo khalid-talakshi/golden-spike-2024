@@ -6,8 +6,8 @@ import Standings from "./resource.standings";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Golden Spike 2024" },
+    { name: "description", content: "Golden Spike 2024" },
   ];
 };
 

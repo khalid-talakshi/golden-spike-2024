@@ -39,8 +39,6 @@ export default function Schedule() {
     fetcher.load("/resource/schedule");
   }, []);
 
-  console.log(fetcher.state === "idle");
-
   return (
     <div className="bg-slate-700 p-2 rounded-md shadow-lg shadow-black">
       <div className="flex  mb-2">

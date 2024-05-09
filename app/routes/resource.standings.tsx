@@ -17,64 +17,72 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let parsedStandings;
 
+  const overallStandings = standings?.map((standing: string[]) => {
+    return {
+      team: standing[0],
+      group: standing[1],
+      points: standing[2],
+      wins: standing[3],
+      draws: standing[4],
+      losses: standing[5],
+      pointDiff: standing[6],
+      pointsFor: standing[7],
+      pointsAgains: standing[8],
+    };
+  });
+
+  const groups = ["A", "B", "C"];
+  let groupStandings = [];
+  for (let group of groups) {
+    groupStandings.push(
+      standings
+        ?.filter((standing: string[]) => standing[1] === group)
+        .map((standing: string[]) => {
+          return {
+            team: standing[0],
+            group: standing[1],
+            points: standing[2],
+            wins: standing[3],
+            draws: standing[4],
+            losses: standing[5],
+            pointDiff: standing[6],
+            pointsFor: standing[7],
+            pointsAgains: standing[8],
+          };
+        })
+    );
+  }
+  const top3: any[] = [];
+  groupStandings.forEach((group: any) => {
+    top3.push(group[0]);
+  });
+  top3.sort((a, b) => {
+    const points = b.points - a.points;
+    const pointDiff = b.pointDiff - a.pointDiff;
+    const pointsFor = b.pointsFor - a.pointsFor;
+    const pointsAgains = b.pointsAgains - a.pointsAgains;
+    return points || pointDiff || pointsFor || pointsAgains;
+  });
+
+  const top3Names = top3.map((team) => team.team);
+
+  const bestOfRest =
+    overallStandings?.filter((standing: any) => {
+      return !top3Names.includes(standing.team);
+    }) || [];
+
+  const wildCardRankings = [...top3, ...bestOfRest];
+
   switch (standingType) {
     case "overall":
-      parsedStandings = standings?.map((standing: string[]) => {
-        return {
-          team: standing[0],
-          group: standing[1],
-          points: standing[2],
-          wins: standing[3],
-          draws: standing[4],
-          losses: standing[5],
-          pointDiff: standing[6],
-          pointsFor: standing[7],
-          pointsAgains: standing[8],
-        };
-      });
-      break;
+      return { standings: overallStandings, type: standingType };
     case "group":
-      const groups = ["A", "B", "C"];
-      let subParsedStandings = [];
-      for (let group of groups) {
-        subParsedStandings.push(
-          standings
-            ?.filter((standing: string[]) => standing[1] === group)
-            .map((standing: string[]) => {
-              return {
-                team: standing[0],
-                group: standing[1],
-                points: standing[2],
-                wins: standing[3],
-                draws: standing[4],
-                losses: standing[5],
-                pointDiff: standing[6],
-                pointsFor: standing[7],
-                pointsAgains: standing[8],
-              };
-            })
-        );
-        console.log(subParsedStandings);
-      }
-      parsedStandings = subParsedStandings;
+      return { standings: groupStandings, type: standingType };
+    case "wildcard":
+      return { standings: wildCardRankings, type: standingType };
     default:
-      parsedStandings = standings?.map((standing: string[]) => {
-        return {
-          team: standing[0],
-          group: standing[1],
-          points: standing[2],
-          wins: standing[3],
-          draws: standing[4],
-          losses: standing[5],
-          pointDiff: standing[6],
-          pointsFor: standing[7],
-          pointsAgains: standing[8],
-        };
-      });
-      break;
+      return { standings: overallStandings, type: "UNKNOWN" };
   }
-
-  return { standings: parsedStandings, type: standingType };
 }
 
 export default function Standings() {
@@ -91,17 +99,17 @@ export default function Standings() {
         return (
           <div>
             <div className="flex gap-2 justify-between border-b-2">
-              <div className="w-1/12 font-bold">Rank</div>
+              <div className="w-2/12 font-bold">Rank</div>
               <div className="w-4/12 font-bold">Team</div>
-              <div className="w-1/12 font-bold">Points</div>
+              <div className="w-2/12 font-bold">Points</div>
               <div className="w-4/12 font-bold">Record (Diff)</div>
             </div>
             {fetcher.data?.standings?.map((standing: any, index: number) => {
               return (
                 <div key={index} className="flex gap-2 justify-between">
-                  <div className="w-1/12">{index + 1}</div>
+                  <div className="w-2/12">{index + 1}</div>
                   <div className="w-4/12">{standing.team}</div>
-                  <div className="w-1/12">{standing.points}</div>
+                  <div className="w-2/12">{standing.points}</div>
                   <div className="w-4/12">
                     {standing.wins}-{standing.draws}-{standing.losses} (
                     {standing.pointDiff})
@@ -112,16 +120,64 @@ export default function Standings() {
           </div>
         );
       case "group":
-        return null;
-      case "wildcard":
-        return fetcher.data?.standings?.map((standing: any, index: number) => {
+        return fetcher.data?.standings?.map((group: any, index: number) => {
+          const groupName = group[0].group;
           return (
-            <div key={index} className="flex gap-2 justify-between">
-              <div className="w-1/2">{standing.team}</div>
-              <div className="w-1/2">{standing.points}</div>
+            <div className="w-full flex flex-col mb-2 last:mb-0">
+              <h3 className="text-xl font-racing text-center">
+                Group {groupName}
+              </h3>
+              <div className="flex gap-2 justify-between border-b-2">
+                <div className="w-2/12 font-bold">Rank</div>
+                <div className="w-4/12 font-bold">Team</div>
+                <div className="w-2/12 font-bold">Points</div>
+                <div className="w-4/12 font-bold">Record (Diff)</div>
+              </div>
+              {group.map((standing: any, index: number) => {
+                return (
+                  <div key={index} className="flex gap-2 justify-between">
+                    <div className="w-2/12">{index + 1}</div>
+                    <div className="w-4/12">{standing.team}</div>
+                    <div className="w-2/12">{standing.points}</div>
+                    <div className="w-4/12">
+                      {standing.wins}-{standing.draws}-{standing.losses} (
+                      {standing.pointDiff})
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         });
+      case "wildcard":
+        return (
+          <div>
+            <div className="flex gap-2 justify-between border-b-2">
+              <div className="w-2/12 font-bold">Rank</div>
+              <div className="w-4/12 font-bold">Team</div>
+              <div className="w-2/12 font-bold">Points</div>
+              <div className="w-4/12 font-bold">Record (Diff)</div>
+            </div>
+            {fetcher.data?.standings?.map((standing: any, index: number) => {
+              return (
+                <div
+                  key={index}
+                  className={`flex gap-2 justify-between ${
+                    index === 2 ? "border-b-2 border-dashed" : null
+                  }`}
+                >
+                  <div className="w-2/12">{index + 1}</div>
+                  <div className="w-4/12">{standing.team}</div>
+                  <div className="w-2/12">{standing.points}</div>
+                  <div className="w-4/12">
+                    {standing.wins}-{standing.draws}-{standing.losses} (
+                    {standing.pointDiff})
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
 
       default:
         return fetcher.data?.standings?.map((standing: any, index: number) => {

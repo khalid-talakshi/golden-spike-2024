@@ -85,27 +85,26 @@ export default function Standings() {
     fetcher.load(`/resource/standings?type=${standingType}`);
   }, [standingType]);
 
-  console.log(fetcher.data);
-
   const standingMarkup = () => {
     switch (fetcher.data?.type) {
       case "overall":
         return (
           <div>
             <div className="flex gap-2 justify-between border-b-2">
-              <div className="w-2/12 font-bold">Rank</div>
-              <div className="w-5/12 font-bold">Team</div>
-              <div className="w-2/12 font-bold">Points</div>
-              <div className="w-3/12 font-bold">Record</div>
+              <div className="w-1/12 font-bold">Rank</div>
+              <div className="w-4/12 font-bold">Team</div>
+              <div className="w-1/12 font-bold">Points</div>
+              <div className="w-4/12 font-bold">Record (Diff)</div>
             </div>
             {fetcher.data?.standings?.map((standing: any, index: number) => {
               return (
                 <div key={index} className="flex gap-2 justify-between">
-                  <div className="w-2/12">{index + 1}</div>
-                  <div className="w-5/12">{standing.team}</div>
-                  <div className="w-2/12">{standing.points}</div>
-                  <div className="w-3/12">
-                    {standing.wins}-{standing.draws}-{standing.losses}
+                  <div className="w-1/12">{index + 1}</div>
+                  <div className="w-4/12">{standing.team}</div>
+                  <div className="w-1/12">{standing.points}</div>
+                  <div className="w-4/12">
+                    {standing.wins}-{standing.draws}-{standing.losses} (
+                    {standing.pointDiff})
                   </div>
                 </div>
               );
@@ -138,15 +137,22 @@ export default function Standings() {
 
   return (
     <div className="bg-slate-700 p-2 rounded-md shadow-lg shadow-black">
-      <div className="flex">
-        <div className="w-1/12"></div>
-        <h2 className="text-center text-3xl font-racing mb-2 grow">
-          Standings{" "}
-        </h2>
-        <div className="w-1/12 text-3xl">
-          {fetcher.state === "loading" ? (
-            <i className="fa-solid fa-spinner fa-spin"></i>
-          ) : null}
+      <div className="flex mb-2 ">
+        <div
+          className="w-1/12 text-3xl flex justify-center items-center transition-colors ease-in-out duration-75 hover:text-slate-400 hover:cursor-pointer"
+          onClick={() =>
+            fetcher.load(`/resource/standings?type=${standingType}`)
+          }
+        >
+          <i className="fa-solid fa-arrows-rotate"></i>
+        </div>
+        <h2 className="text-center text-3xl font-racing grow">Standings</h2>
+        <div className="w-1/12 text-3xl flex justify-center items-center">
+          <i
+            className={`fa-solid fa-spinner fa-spin ${
+              fetcher.state === "idle" ? "!hidden" : null
+            }`}
+          ></i>
         </div>
       </div>
       <div className="flex gap-2 justify-between mb-2">

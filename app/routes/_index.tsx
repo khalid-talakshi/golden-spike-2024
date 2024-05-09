@@ -22,8 +22,6 @@ export async function loader() {
   const times = response?.data?.valueRanges
     ? response?.data?.valueRanges[0].values
     : [];
-  console.log(times);
-
   return { sheetsApi: sheetsApi };
 }
 
